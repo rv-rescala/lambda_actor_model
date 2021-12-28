@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-12-28T11:20:55.328Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36" etag="LIaRsEER5KOI3FifZTi1" version="16.1.0" type="github">
+<mxfile host="app.diagrams.net" modified="2021-12-28T11:21:34.420Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36" etag="eS1ju4uwio1aKXIRdXf0" version="16.1.0" type="github">
   <diagram id="PuH-PeZwNKLEWdiO-4o5" name="Page-1">
     <mxGraphModel dx="1557" dy="447" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -90,7 +90,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="9dyetpEt3IkrnKQwJnKX-22" value="Adding URL when the task faild" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="9dyetpEt3IkrnKQwJnKX-16">
+        <mxCell id="9dyetpEt3IkrnKQwJnKX-22" value="Adding URL when the task failed for retry" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="9dyetpEt3IkrnKQwJnKX-16">
           <mxGeometry x="-0.12" y="-2" relative="1" as="geometry">
             <mxPoint x="1" as="offset" />
           </mxGeometry>
