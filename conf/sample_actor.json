@@ -1,0 +1,10 @@
+{
+    "driver_fifo": "demo_master_q.fifo",
+    "driver_status_fifo": "demo_job_status_q.fifo",
+    "executor_fifo":  "demo_node_q.fifo",
+    "executor_concurrency":  10,
+    "max_retry":  3,
+    "trigger_file_bucket": "rescala-input",
+    "trigger_file_prefix": "mangawalk/target_url",
+    "trigger_file": "manga_target.csv"
+}
