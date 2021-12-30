@@ -15,7 +15,7 @@ logger = logging.getLogger()
 class ActorExecutorException(Exception):
     pass
 
-def actor_executor(bucket: str, prefix: str, filename: str, execution_func, executor_trigger_message: str = None):
+def actor_executor(bucket: str, prefix: str, filename: str, execution_func, executor_trigger_message_str: str = None):
     """[summary]
 
     Args:
@@ -36,12 +36,14 @@ def actor_executor(bucket: str, prefix: str, filename: str, execution_func, exec
     executor_result_q = sqs.get_queue_by_name(QueueName=actor_conf.executor_result_q)
 
     # Run mannualy
-    if executor_trigger_message is None:
+    if executor_trigger_message_str is None:
         executor_trigger_message_str = receive(executor_trigger_q, 1)
         logger.info(executor_trigger_message_str)
         if len(executor_trigger_message_str) == 0:
             raise ActorExecutorException("executor_trigger_message_str is zero")
         executor_trigger_message = ExecutorTriggerMessage.decode(executor_trigger_message_str[0])
+    else:
+        executor_trigger_message = ExecutorTriggerMessage.decode(executor_trigger_message_str)
 
     # timer
     timeout = actor_conf.max_lambda_execution_time

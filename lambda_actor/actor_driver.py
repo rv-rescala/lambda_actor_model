@@ -54,6 +54,8 @@ def actor_driver(bucket: str, prefix: str, filename: str, driver_trigger_message
         if len(driver_trigger_message_list) == 0:
             raise ActorDriverException("driver_trigger_message_list is zero")
         driver_trigger_message = DriverTriggerMessage.decode(driver_trigger_message_list[0])
+    else:
+        driver_trigger_message = DriverTriggerMessage.decode(driver_trigger_message)
 
     if driver_trigger_message.status == DriverTriggerStatusType.INIT:
         executor_init_start(executor_concurrency=actor_conf.executor_concurrency, driver_trigger_message=driver_trigger_message, executor_trigger_q=executor_trigger_q)
