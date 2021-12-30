@@ -219,6 +219,12 @@ class ExecutorResultMessage:
             executor_id=executor_id,
             execute_time=execute_time
         )
+
+    @classmethod
+    def decode_list(cls, message_list: List[str]):
+        """
+        """
+        return list(map(lambda m: ExecutorResultMessage.decode(m), message_list))
         
     def encode(self) -> str:
         """[summary]

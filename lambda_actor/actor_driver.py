@@ -27,7 +27,7 @@ def executor_start(executor_id: int, driver_trigger_message, executor_trigger_q)
     m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.START, message=f"executor {executor_id} start", driver_trigger_timestamp=driver_trigger_message.driver_trigger_timestamp, executor_id=executor_id)
     send(executor_trigger_q, [m.encode()])
 
-def actor_driver(bucket: str, prefix: str, filename: str, driver_trigger_message: str = None):
+def actor_driver(bucket: str, prefix: str, filename: str, finally_func, driver_trigger_message: str = None):
     """[summary]
 
     Args:
@@ -61,8 +61,9 @@ def actor_driver(bucket: str, prefix: str, filename: str, driver_trigger_message
         executor_init_start(executor_concurrency=actor_conf.executor_concurrency, driver_trigger_message=driver_trigger_message, executor_trigger_q=executor_trigger_q)
     elif driver_trigger_message.status == DriverTriggerStatusType.EXECUTOR_FINISH:
         logger.info(f"actor_driver: DriverStatusType.FINISH, executor_id is {driver_trigger_message}")
-        results = receive_all(executor_result_q)
-        print(results)
+        result_message_str_list = receive_all(executor_result_q)
+        result_message = ExecutorResultMessage.decode_list(result_message_str_list)
+        finally_func(result_message)
     else:
         raise ActorDriverException(f"driver_status_message.status  is illegal: {driver_status_message.status}")
     
