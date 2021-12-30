@@ -176,60 +176,9 @@ class ExecutorResultMessage:
     """[summary]
     """
     status: ExecutorResultStatusType
-    message: str
+    result: str
     driver_trigger_timestamp: str
     executor_trigger_timestamp: str
     retry_count: int
     executor_id: int
     execute_time: str
-
-
-
-    @classmethod
-    def decode(cls, message_str: str):
-        """[summary]
-
-        Args:
-            message_str ([type]): [description]
-
-        Returns:
-            JobStatusMessage: [description]
-        """
-        ss = message_str.split(",")
-        raw_status = ss[0]
-        if raw_status == ExecutorResultStatusType.SUCCESS.value:
-            status = ExecutorResultStatusType.SUCCESS
-        elif raw_status == ExecutorResultStatusType.FAILED.value:
-            status = ExecutorResultStatusType.FAILED
-        else:
-            raise Exception(f"ExecutorResultStatusType parse error: {message_str}")
-        message = ss[1]
-        driver_trigger_timestamp = ss[2]
-        executor_trigger_timestamp = ss[3]
-        retry_count = ss[4]
-        executor_id = ss[5]
-        execute_time = ss[6]
-
-        return ExecutorResultMessage(
-            status=status,
-            message=message,
-            driver_trigger_timestamp=driver_trigger_timestamp,
-            executor_trigger_timestamp=executor_trigger_timestamp,
-            retry_count=retry_count,
-            executor_id=executor_id,
-            execute_time=execute_time
-        )
-
-    @classmethod
-    def decode_list(cls, message_list: List[str]):
-        """
-        """
-        return list(map(lambda m: ExecutorResultMessage.decode(m), message_list))
-        
-    def encode(self) -> str:
-        """[summary]
-
-        Returns:
-            str: [description]
-        """
-        return f"{self.status.value},{self.message},{self.driver_trigger_timestamp},{self.executor_trigger_timestamp},{self.retry_count},{self.executor_id},{self.execute_time}"

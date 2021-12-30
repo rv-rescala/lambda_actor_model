@@ -25,9 +25,7 @@ def clear_all_q(bucket: str, prefix: str, filename: str):
     driver_trigger_q = sqs.get_queue_by_name(QueueName=actor_conf.driver_trigger_q)
     executor_trigger_q = sqs.get_queue_by_name(QueueName=actor_conf.executor_trigger_q)
     executor_task_q = sqs.get_queue_by_name(QueueName=actor_conf.executor_task_q)
-    executor_result_q = sqs.get_queue_by_name(QueueName=actor_conf.executor_result_q)
 
     logger.info(f"clear driver_trigger_q: {receive_all(driver_trigger_q)}")
     logger.info(f"clear executor_trigger_q: {receive_all(executor_trigger_q)}")
     logger.info(f"clear executor_task_q: {receive_all(executor_task_q)}")
-    logger.info(f"clear executor_result_q: {receive_all(executor_result_q)}")

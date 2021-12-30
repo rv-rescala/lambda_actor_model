@@ -27,7 +27,7 @@ def executor_start(executor_id: int, driver_trigger_message, executor_trigger_q)
     m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.START, message=f"executor {executor_id} start", driver_trigger_timestamp=driver_trigger_message.driver_trigger_timestamp, executor_id=executor_id)
     send(executor_trigger_q, [m.encode()], executor_id)
 
-def actor_driver(bucket: str, prefix: str, filename: str, finally_func, driver_trigger_message: str = None):
+def actor_driver(bucket: str, prefix: str, filename: str, finally_func=None, driver_trigger_message: str = None):
     """[summary]
 
     Args:
@@ -45,7 +45,6 @@ def actor_driver(bucket: str, prefix: str, filename: str, finally_func, driver_t
     driver_trigger_q = sqs.get_queue_by_name(QueueName=actor_conf.driver_trigger_q)
     executor_trigger_q = sqs.get_queue_by_name(QueueName=actor_conf.executor_trigger_q)
     executor_task_q = sqs.get_queue_by_name(QueueName=actor_conf.executor_task_q)
-    executor_result_q = sqs.get_queue_by_name(QueueName=actor_conf.executor_result_q)
 
     # Run mannualy
     if driver_trigger_message is None:
@@ -61,9 +60,8 @@ def actor_driver(bucket: str, prefix: str, filename: str, finally_func, driver_t
         executor_init_start(executor_concurrency=actor_conf.executor_concurrency, driver_trigger_message=driver_trigger_message, executor_trigger_q=executor_trigger_q)
     elif driver_trigger_message.status == DriverTriggerStatusType.EXECUTOR_FINISH:
         logger.info(f"actor_driver: DriverStatusType.FINISH, executor_id is {driver_trigger_message}")
-        result_message_str_list = receive_all(executor_result_q)
-        result_message = ExecutorResultMessage.decode_list(result_message_str_list)
-        finally_func(result_message)
+        if finally_func:
+            finally_func()
     else:
         raise ActorDriverException(f"driver_status_message.status  is illegal: {driver_status_message.status}")
     

@@ -9,7 +9,6 @@ class ActorConf:
     driver_trigger_q: str
     executor_trigger_q: str
     executor_task_q: str
-    executor_result_q: str
     executor_concurrency: int
     max_retry: int
     max_lambda_execution_time: int
@@ -38,7 +37,6 @@ class ActorConf:
                 driver_trigger_q=actor_conf_json["driver_trigger_q"],
                 executor_trigger_q=actor_conf_json["executor_trigger_q"],
                 executor_task_q=actor_conf_json["executor_task_q"],
-                executor_result_q=actor_conf_json["executor_result_q"],
                 executor_concurrency=actor_conf_json["executor_concurrency"],
                 max_retry=actor_conf_json["max_retry"],
                 max_lambda_execution_time=actor_conf_json["max_lambda_execution_time"],
