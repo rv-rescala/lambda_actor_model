@@ -1,3 +1,3 @@
-from mangawalk_actor.clear_sqs import clear_sqs
+from lambda_actor.clear_sqs import clear_all_q
 
-clear_sqs("rescala-configuration", "mangawalk/mangawalk_actor", "mangawalk_actor.json")
+clear_all_q("rescala-configuration", "lambda_actor", "sample_actor.json")

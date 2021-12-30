@@ -1,19 +1,19 @@
 from dataclasses import dataclass
 from enum import Enum
-from mangawalk_actor.utils.dateutil import timestamp
+from lambda_actor.utils.dateutil import timestamp
 from typing import List
 
-class DriverStatusType(Enum):
+class DriverTriggerStatusType(Enum):
     INIT = "init"
-    FINISH = "finish"
+    EXECUTOR_FINISH = "executor_finish"
 
 @dataclass
-class DriverStatusMessage:
+class DriverTriggerMessage:
     """[summary]
     """
-    status: DriverStatusType
+    status: DriverTriggerStatusType
     message: str
-    timestamp: str = timestamp()
+    driver_trigger_timestamp: str = timestamp()
 
     @classmethod
     def decode(cls, message_str: str):
@@ -27,19 +27,19 @@ class DriverStatusMessage:
         """
         ss = message_str.split(",")
         raw_status = ss[0]
-        if raw_status == DriverStatusType.INIT.value:
-            status = DriverStatusType.INIT
-        elif raw_status == DriverStatusType.FINISH.value:
-            status = DriverStatusType.FINISH
+        if raw_status == DriverTriggerStatusType.INIT.value:
+            status = DriverTriggerStatusType.INIT
+        elif raw_status == DriverTriggerStatusType.EXECUTOR_FINISH.value:
+            status = DriverTriggerStatusType.EXECUTOR_FINISH
         else:
-            raise Exception(f"DriverStatusMessage parse error: {message_str}")
+            raise Exception(f"DriverTriggerStatusType parse error: {message_str}")
         message = ss[1]
-        timestamp = ss[2]
+        driver_trigger_timestamp = ss[2]
 
-        return DriverStatusMessage(
+        return DriverTriggerMessage(
             status=status,
             message=message,
-            timestamp=timestamp
+            driver_trigger_timestamp=driver_trigger_timestamp
         )
         
     def encode(self) -> str:
@@ -48,99 +48,72 @@ class DriverStatusMessage:
         Returns:
             str: [description]
         """
-        return f"{self.status.value},{self.message},{self.timestamp}"
+        return f"{self.status.value},{self.message},{self.driver_trigger_timestamp}"
 
 
-class DriverType(Enum):
-    INIT = "init"
-    RETRY = "retry"
-
+class ExecutorTriggerStatusType(Enum):
+    START = "start"
 
 @dataclass
-class DriverMessage:
+class ExecutorTriggerMessage:
     """[summary]
     """
-    status: DriverType
+    status: ExecutorTriggerStatusType
     message: str
-    retry_count: int
-    driver_timestamp: str = timestamp()
-
-    @classmethod
-    def decode_list(cls, message_list: List[str]):
-        """
-        """
-        return list(map(lambda m: DriverMessage.decode(m), message_list))
-        
-    @classmethod
-    def decode(cls, message_str: str):
-        """[summary]
-
-        Args:
-            message_str (str): [description]
-
-        Raises:
-            Exception: [description]
-
-        Returns:
-            DriverType: [description]
-        """
-        ss = message_str.split(",")
-        raw_status = ss[0]
-        if raw_status == DriverType.INIT.value:
-            status = DriverType.INIT
-        elif raw_status == DriverType.RETRY.value:
-            status = DriverType.RETRY
-        else:
-            raise Exception(f"DriverMessage parse error: {message_str}")
-        message = ss[1]
-        retry_count = int(ss[2])
-        driver_timestamp = ss[3]
-
-        return DriverMessage(
-            status=status,
-            message=message,
-            retry_count=retry_count,
-            driver_timestamp=driver_timestamp
-        )
-        
-    def encode(self) -> str:
-        """[summary]
-
-        Returns:
-            str: [description]
-        """
-        return f"{self.status.value},{self.message},{self.retry_count},{self.driver_timestamp}"
-
-
-    @classmethod
-    def convert_from_executor_message(cls, executor_message, status:DriverType = None):
-        if status is None:
-            status = self.status
-        def __convert(executor_message):
-            return DriverMessage(
-                status = status,
-                message = executor_message.message,
-                retry_count = executor_message.retry_count,
-                driver_timestamp = executor_message.driver_timestamp
-            )
-        return __convert(executor_message)
-
-@dataclass
-class ExecutorMessage:
-    """[summary]
-    """
-    status: DriverType
-    message: str
-    retry_count: int
-    driver_timestamp: str
+    driver_trigger_timestamp: str
     executor_id: int
-    executor_timestamp: str = timestamp()
+    executor_trigger_timestamp: str = timestamp()
+
+    @classmethod
+    def decode(cls, message_str: str):
+        """[summary]
+
+        Args:
+            message_str ([type]): [description]
+
+        Returns:
+            JobStatusMessage: [description]
+        """
+        ss = message_str.split(",")
+        raw_status = ss[0]
+        if raw_status == ExecutorTriggerStatusType.START.value:
+            status = ExecutorTriggerStatusType.START
+        else:
+            raise Exception(f"ExecutorTriggerStatusType parse error: {message_str}")
+        message = ss[1]
+        driver_trigger_timestamp = ss[2]
+        executor_id = int(ss[3])
+        executor_trigger_timestamp = ss[4]
+
+        return ExecutorTriggerMessage(
+            status=status,
+            message=message,
+            driver_trigger_timestamp=driver_trigger_timestamp,
+            executor_id=executor_id,
+            executor_trigger_timestamp=executor_trigger_timestamp
+        )
+        
+    def encode(self) -> str:
+        """[summary]
+
+        Returns:
+            str: [description]
+        """
+        return f"{self.status.value},{self.message},{self.driver_trigger_timestamp},{self.executor_id},{self.executor_trigger_timestamp}"
+
+@dataclass
+class ExecutorTaskMessage:
+    """[summary]
+    """
+    message: str
+    retry_count: int = 0
+    executor_task_timestamp: str = timestamp()
 
     @classmethod
     def decode_list(cls, message_list: List[str]):
         """
         """
-        return list(map(lambda m: ExecutorMessage.decode(m), message_list))
+        return list(map(lambda m: ExecutorTaskMessage.decode(m), message_list))
         
     @classmethod
     def decode(cls, message_str: str):
@@ -156,26 +129,15 @@ class ExecutorMessage:
             DriverType: [description]
         """
         ss = message_str.split(",")
-        raw_status = ss[0]
-        if raw_status == DriverType.INIT.value:
-            status = DriverType.INIT
-        elif raw_status == DriverType.RETRY.value:
-            status = DriverType.RETRY
-        else:
-            raise Exception(f"ExecutorMessage parse error: {message_str}")
-        message = ss[1]
-        retry_count = int(ss[2])
-        driver_timestamp = ss[3]
-        executor_id = ss[4]
-        executor_timestamp = ss[5]
 
-        return ExecutorMessage(
-            status=status,
+        message = ss[0]
+        retry_count = int(ss[1])
+        executor_task_timestamp = ss[2]
+
+        return ExecutorTaskMessage(
             message=message,
             retry_count=retry_count,
-            driver_timestamp=driver_timestamp,
-            executor_id=executor_id,
-            executor_timestamp=executor_timestamp
+            executor_task_timestamp=executor_task_timestamp
         )
         
     def encode(self) -> str:
@@ -184,26 +146,84 @@ class ExecutorMessage:
         Returns:
             str: [description]
         """
-        return f"{self.status.value},{self.message},{self.retry_count},{self.driver_timestamp},{self.executor_id},{self.executor_timestamp}"
+        return f"{self.message},{self.retry_count},{self.executor_task_timestamp}"
 
     @classmethod
-    def encode_list(cls, message_list: List[str]) -> str:
+    def encode_list(cls, executor_task_message_list) -> str:
             """[summary]
 
             Returns:
                 str: [description]
             """
-            return list(map(lambda m: m.encode(), message_list))
-    
+            return list(map(lambda m: m.encode(), executor_task_message_list))
+
     @classmethod
-    def convert_from_driver_message_list(cls, executor_id:int, driver_message_list = List[DriverMessage]):
-        def __convert(driver_message: DriverMessage):
-            return ExecutorMessage(
-                status = driver_message.status,
-                message = driver_message.message,
-                retry_count = driver_message.retry_count + 1,
-                driver_timestamp = driver_message.driver_timestamp,
-                executor_id = executor_id
-            )
-        r = list(map(lambda d: __convert(d), driver_message_list))
-        return r
+    def create_message(cls, executor_message_list) -> str:
+            """[summary]
+
+            Returns:
+                str: [description]
+            """
+            return list(map(lambda m: ExecutorTaskMessage(message=m), executor_message_list))
+
+
+class ExecutorResultStatusType(Enum):
+    SUCCESS = "success"
+    FAILED = "failed"
+
+@dataclass
+class ExecutorResultMessage:
+    """[summary]
+    """
+    status: ExecutorResultStatusType
+    message: str
+    driver_trigger_timestamp: str
+    executor_trigger_timestamp: str
+    retry_count: int
+    executor_id: int
+    execute_time: str
+
+
+
+    @classmethod
+    def decode(cls, message_str: str):
+        """[summary]
+
+        Args:
+            message_str ([type]): [description]
+
+        Returns:
+            JobStatusMessage: [description]
+        """
+        ss = message_str.split(",")
+        raw_status = ss[0]
+        if raw_status == ExecutorResultStatusType.SUCCESS.value:
+            status = ExecutorResultStatusType.SUCCESS
+        elif raw_status == ExecutorResultStatusType.FAILED.value:
+            status = ExecutorResultStatusType.FAILED
+        else:
+            raise Exception(f"ExecutorResultStatusType parse error: {message_str}")
+        message = ss[1]
+        driver_trigger_timestamp = ss[2]
+        executor_trigger_timestamp = ss[3]
+        retry_count = ss[4]
+        executor_id = ss[5]
+        execute_time = ss[6]
+
+        return ExecutorResultMessage(
+            status=status,
+            message=message,
+            driver_trigger_timestamp=driver_trigger_timestamp,
+            executor_trigger_timestamp=executor_trigger_timestamp,
+            retry_count=retry_count,
+            executor_id=executor_id,
+            execute_time=execute_time
+        )
+        
+    def encode(self) -> str:
+        """[summary]
+
+        Returns:
+            str: [description]
+        """
+        return f"{self.status.value},{self.message},{self.driver_trigger_timestamp},{self.executor_trigger_timestamp},{self.retry_count},{self.executor_id},{self.execute_time}"

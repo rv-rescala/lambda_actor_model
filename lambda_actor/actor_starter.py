@@ -1,9 +1,9 @@
 import boto3
 import logging
 import traceback
-from mangawalk_actor.types.type_conf import ActorConf
-from mangawalk_actor.types.type_actor_message import DriverStatusType, DriverStatusMessage, DriverType, DriverMessage
-from mangawalk_actor.awslambda.sqs import enqueue
+from lambda_actor.types.type_conf import ActorConf
+from lambda_actor.types.type_actor_message import *
+from lambda_actor.aws.sqs import *
 
 logger = logging.getLogger()
 
@@ -27,23 +27,22 @@ def actor_starter(bucket: str, prefix: str, filename: str):
 
     # sqs init
     sqs = boto3.resource('sqs', region_name='ap-northeast-1')
-    driver_fifo = sqs.get_queue_by_name(QueueName=actor_conf.driver_fifo)
-    driver_status_fifo = sqs.get_queue_by_name(QueueName=actor_conf.driver_status_fifo)
+    driver_trigger_q = sqs.get_queue_by_name(QueueName=actor_conf.driver_trigger_q)
+    executor_task_q = sqs.get_queue_by_name(QueueName=actor_conf.executor_task_q)
     
     # get csv
     s3_client.download_file(actor_conf.trigger_file_bucket, trigger_input_path, tmp_trigger_input_path)
     with open(tmp_trigger_input_path) as f:
-            url_list = f.read().split('\n')[1:] #Skip header
-            logger.info(f"url_list: {url_list}")
+            #executor_message_list = f.read().split('\n')[1:] #Skip header
+            executor_message_list = f.read().split('\n')
+            logger.info(f"executor_message_list: {executor_message_list}")
             
-            # add driver_fifo queue
-            # driver_fifoに初めにエンキューする必要がある
-            driver_message = list(map(lambda x: DriverMessage(status=DriverType.INIT, message=x, retry_count=0).encode(), url_list))
-            logger.info(f"driver_message: {driver_message}")
-            enqueue(driver_fifo, driver_message)
+            # add executor task message
+            executor_task_message_list = ExecutorTaskMessage.create_message(executor_message_list)
+            logger.info(f"executor_task_message_list: {executor_task_message_list}")
+            send(executor_task_q, ExecutorTaskMessage.encode_list(executor_task_message_list))
 
             # add driver_status_fifo queue
-            driver_status_message = [DriverStatusMessage(status=DriverStatusType.INIT, message="init").encode()]
-            print(f"driver_status_message: {driver_status_message}")
-            enqueue(driver_status_fifo, driver_status_message)
+            driver_trigger_message = [DriverTriggerMessage(status=DriverTriggerStatusType.INIT, message="start actor").encode()]
+            send(driver_trigger_q, driver_trigger_message)
 
