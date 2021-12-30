@@ -1,9 +1,12 @@
 from typing import List
 
 
-def send(queue, message_body: List[str]):
+def send(queue, message_body: List[str], group_id = None):
     msg_num = len(message_body)
-    msg_list = [{'Id': '{}'.format(i+1), 'MessageBody': message_body[i], 'MessageGroupId': 'group'} for i in range(msg_num)]
+    if group_id:
+        msg_list = [{'Id': '{}'.format(i+1), 'MessageBody': message_body[i], 'MessageGroupId': 'group' + str(group_id)} for i in range(msg_num)]
+    else:
+        msg_list = [{'Id': '{}'.format(i+1), 'MessageBody': message_body[i], 'MessageGroupId': 'group'} for i in range(msg_num)]
     size = 10
     for start in range(0, len(msg_list), size):
         queue.send_messages(Entries=msg_list[start: start + size])

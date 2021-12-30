@@ -25,7 +25,7 @@ def executor_start(executor_id: int, driver_trigger_message, executor_trigger_q)
     logger.info(f"executor_start")
     logger.info(f"executor_id: {executor_id}")
     m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.START, message=f"executor {executor_id} start", driver_trigger_timestamp=driver_trigger_message.driver_trigger_timestamp, executor_id=executor_id)
-    send(executor_trigger_q, [m.encode()])
+    send(executor_trigger_q, [m.encode()], executor_id)
 
 def actor_driver(bucket: str, prefix: str, filename: str, finally_func, driver_trigger_message: str = None):
     """[summary]
