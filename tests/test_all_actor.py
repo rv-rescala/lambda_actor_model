@@ -9,11 +9,14 @@ def execution_func(message: str) -> str:
     return f"hello: {message}"
 
 def finally_func(message_list) -> str:
+
+    """
     s3_client = boto3.client('s3')
     s = "\n".join(list(map(lambda x: x.encode(), message_list)))
     with open("/tmp/actor_test.csv", "w") as f:
         f.write(s)
         s3_client.upload_file("/tmp/actor_test.csv", "tmpout", "actor_test.csv")
+    """
 
 
 actor_starter("rescala-configuration", "lambda_actor", "sample_actor.json")

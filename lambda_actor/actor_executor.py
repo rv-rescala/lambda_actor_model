@@ -15,7 +15,7 @@ logger = logging.getLogger()
 class ActorExecutorException(Exception):
     pass
 
-def actor_executor(bucket: str, prefix: str, filename: str, execution_func, executor_trigger_message_str: str = None):
+def actor_executor(bucket: str, prefix: str, filename: str, execution_func, finally_func, executor_trigger_message_str: str = None):
     """[summary]
 
     Args:
@@ -90,20 +90,21 @@ def actor_executor(bucket: str, prefix: str, filename: str, execution_func, exec
             # Create result
             executor_result_message = ExecutorResultMessage(
                 status = status,
-                message = result_message,
+                result_message = result_message,
                 driver_trigger_timestamp = executor_trigger_message.driver_trigger_timestamp,
                 executor_trigger_timestamp = executor_trigger_message.executor_trigger_timestamp,
                 retry_count = executor_task_message.retry_count,
                 executor_id = executor_trigger_message.executor_id,
                 execute_time = task_time
             )
-            send(executor_result_q, [ExecutorResultMessage.encode(executor_result_message)])
+
+            #send(executor_result_q, [ExecutorResultMessage.encode(executor_result_message)])
         if executed_time > timeout:
             logger.info(f"actor_executor is timeout, {executor_trigger_message}")
             break
         else:
             logger.debug(executed_time)
-    
+
     retrun_driver_trigger_message = DriverTriggerMessage(
             status=DriverTriggerStatusType.EXECUTOR_FINISH,
             message=f"executor_id was {executor_trigger_message.executor_id}"
