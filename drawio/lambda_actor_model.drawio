@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-12-30T01:42:22.812Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36" etag="8ekmyiHOznx7l_ApRl6s" version="16.1.0" type="github">
+<mxfile host="app.diagrams.net" modified="2021-12-30T01:43:39.455Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36" etag="lksQgsUri30C_4cdKAHs" version="16.1.0" type="github">
   <diagram id="PuH-PeZwNKLEWdiO-4o5" name="Page-1">
     <mxGraphModel dx="1924" dy="592" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -43,7 +43,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="9dyetpEt3IkrnKQwJnKX-21" value="URL List" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" parent="9dyetpEt3IkrnKQwJnKX-9" vertex="1" connectable="0">
+        <mxCell id="9dyetpEt3IkrnKQwJnKX-21" value="task" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" parent="9dyetpEt3IkrnKQwJnKX-9" vertex="1" connectable="0">
           <mxGeometry x="0.045" y="4" relative="1" as="geometry">
             <mxPoint y="1" as="offset" />
           </mxGeometry>
@@ -88,18 +88,18 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="9dyetpEt3IkrnKQwJnKX-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="9dyetpEt3IkrnKQwJnKX-11" target="9dyetpEt3IkrnKQwJnKX-2" edge="1">
+        <mxCell id="9dyetpEt3IkrnKQwJnKX-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=classic;startFill=1;" parent="1" source="9dyetpEt3IkrnKQwJnKX-11" target="9dyetpEt3IkrnKQwJnKX-2" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="735" y="446" />
-              <mxPoint x="735" y="80" />
+              <mxPoint x="770" y="446" />
+              <mxPoint x="770" y="80" />
               <mxPoint x="305" y="80" />
             </Array>
             <mxPoint x="534.8299999999999" y="446" as="sourcePoint" />
             <mxPoint x="350" y="100" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="9dyetpEt3IkrnKQwJnKX-22" value="Adding URL when the task failed for retry" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" parent="9dyetpEt3IkrnKQwJnKX-16" vertex="1" connectable="0">
+        <mxCell id="9dyetpEt3IkrnKQwJnKX-22" value="Get task and&lt;br&gt;Adding URL when the task failed for retry" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" parent="9dyetpEt3IkrnKQwJnKX-16" vertex="1" connectable="0">
           <mxGeometry x="-0.12" y="-2" relative="1" as="geometry">
             <mxPoint x="1" as="offset" />
           </mxGeometry>
