@@ -64,8 +64,9 @@ def actor_executor(bucket: str, prefix: str, filename: str, execution_func, exec
         try:
             result_message = execution_func(executor_task_message.message)
             status = ExecutorResultStatusType.SUCCESS
-        except:
+        except Exception as e:
             # when the task failed, retry
+            logger.error(e)
             retry_count = executor_task_message.retry_count + 1
             if retry_count > actor_conf.max_retry:
                 result_message = ""
