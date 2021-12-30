@@ -66,12 +66,11 @@ def actor_executor(bucket: str, prefix: str, filename: str, execution_func, exec
             status = ExecutorResultStatusType.SUCCESS
         except Exception as e:
             # when the task failed, retry
-            logger.error(e)
             retry_count = executor_task_message.retry_count + 1
             if retry_count > actor_conf.max_retry:
                 result_message = ""
                 status = ExecutorResultStatusType.FAILED
-                logger.error(f"actor_executor: {executor_task_message} is failed")
+                logger.error(f"actor_executor: {executor_task_message} is failed, {e}")
             else:
                 retry_executor_task_message = ExecutorTaskMessage(
                     message=executor_task_message.message,
@@ -80,7 +79,7 @@ def actor_executor(bucket: str, prefix: str, filename: str, execution_func, exec
                 retry_message = ExecutorTaskMessage.encode(retry_executor_task_message)
                 print(retry_message)
                 send(executor_task_q, [retry_message])
-                logger.warn(f"actor_executor: {retry_executor_task_message} is retried")
+                logger.error(f"actor_executor: {retry_executor_task_message} is retried, {e}")
 
         # timer
         task_end = time.time()
