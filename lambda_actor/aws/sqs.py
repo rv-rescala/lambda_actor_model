@@ -60,7 +60,7 @@ def get_q_current_size(qname: str):
 
 def is_q_empty(qname: str) -> bool:
     q_size = int(get_q_current_size(qname=qname))
-    if q_size != 0:
+    if q_size > 0:
         return True
     else:
         return False
