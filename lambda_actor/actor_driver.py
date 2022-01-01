@@ -86,8 +86,9 @@ def actor_driver(bucket: str, prefix: str, conf_filename: str, finally_func=None
     else:
         driver_trigger_message = DriverTriggerMessage.decode(driver_trigger_message_str)
         task_q_size = get_q_current_size(qname=actor_conf.executor_task_q)
-        print(f"task q count: {task_q_siz}")
-        if (driver_trigger_message.status == DriverTriggerStatusType.CONTINUE) or (task_q_size > 1):
+        print(f"task q count: {task_q_size}")
+        print(task_q_size > 0)
+        if (driver_trigger_message.status == DriverTriggerStatusType.CONTINUE) or (task_q_size > 0):
             print(f"contine: {driver_trigger_message}")
             executor_start(executor_id=driver_trigger_message.executor_id, executor_key=actor_conf.executor_key, executor_trigger_q=executor_trigger_q, driver_trigger_message=driver_trigger_message)
         elif driver_trigger_message.status == DriverTriggerStatusType.FINISH:
