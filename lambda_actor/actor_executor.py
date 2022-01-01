@@ -15,17 +15,17 @@ logger = logging.getLogger()
 class ActorExecutorException(Exception):
     pass
 
-def actor_executor(bucket: str, prefix: str, filename: str, execution_func, finally_func = None, executor_trigger_message_str: str = None):
+def actor_executor(bucket: str, prefix: str, conf_filename: str, execution_func, finally_func = None, executor_trigger_message_str: str = None):
     """[summary]
 
     Args:
         bucket (str): [description]
         prefix (str): [description]
-        filename (str): [description]
+        conf_filename (str): [description]
     """
     # init
     s3_client = boto3.client('s3')
-    actor_conf = ActorConf.get_actor_conf(s3_client=s3_client, bucket=bucket, prefix=prefix, filename=filename)
+    actor_conf = ActorConf.get_actor_conf(s3_client=s3_client, bucket=bucket, prefix=prefix, conf_filename=conf_filename)
     logger.info(f"actor_conf: {actor_conf}")
 
     # sqs init
@@ -48,37 +48,42 @@ def actor_executor(bucket: str, prefix: str, filename: str, execution_func, fina
     timeout = actor_conf.max_lambda_execution_time
     logger.info(f"executor timeout: {timeout}")
     executor_start = time.time()
-
     executor_result_list = []
+    driver_trigger_status = DriverTriggerStatusType.CONTINUE
+
     while True:
         executer_task_message_str = receive(executor_task_q, 1)
+
         # Check task size
         if len(executer_task_message_str) == 0:
             logger.info(f"executor_task_q is zero, {executor_trigger_message}")
+            driver_trigger_status = DriverTriggerStatusType.FINISH
             break
+
         executor_task_message = ExecutorTaskMessage.decode(executer_task_message_str[0])
 
         # run func
         task_start = time.time()
-        status = None
+        executor_result_status = None
         result = None
         try:
             result = execution_func(executor_task_message.message)
-            status = ExecutorResultStatusType.SUCCESS
+            executor_result_status = ExecutorResultStatusType.SUCCESS
         except Exception as e:
             # when the task failed, retry
             retry_count = executor_task_message.retry_count + 1
             if retry_count > actor_conf.max_retry:
-                status = ExecutorResultStatusType.FAILED
+                result = str(e)
+                executor_result_status = ExecutorResultStatusType.FAILED
                 logger.error(f"actor_executor: {executor_task_message} is failed, {e}")
             else:
+                executor_result_status = ExecutorResultStatusType.FAILED
                 retry_executor_task_message = ExecutorTaskMessage(
                     message=executor_task_message.message,
                     retry_count=retry_count
                 )
                 retry_message = ExecutorTaskMessage.encode(retry_executor_task_message)
-                print(retry_message)
-                send(executor_task_q, [retry_message])
+                send_executor_task_message(executor_task_q, [retry_message])
                 logger.error(f"actor_executor: {retry_executor_task_message} is retried, {e}")
 
         # timer
@@ -86,13 +91,13 @@ def actor_executor(bucket: str, prefix: str, filename: str, execution_func, fina
         executed_time = task_end - executor_start
         task_time = task_end - task_start
 
-        if status and result:
+        if result:
             # Create result
             executor_result = ExecutorResultMessage(
-                status = status,
+                status = executor_result_status,
                 result = result,
-                driver_trigger_timestamp = executor_trigger_message.driver_trigger_timestamp,
-                executor_trigger_timestamp = executor_trigger_message.executor_trigger_timestamp,
+                driver_start_timestamp = executor_task_message.driver_start_timestamp,
+                executor_start_timestamp = executor_trigger_message.executor_trigger_timestamp,
                 retry_count = executor_task_message.retry_count,
                 executor_id = executor_trigger_message.executor_id,
                 execute_time = task_time
@@ -109,8 +114,21 @@ def actor_executor(bucket: str, prefix: str, filename: str, execution_func, fina
         finally_func(executor_result_list)
 
     # send finish message
-    retrun_driver_trigger_message = DriverTriggerMessage(
-            status=DriverTriggerStatusType.EXECUTOR_FINISH,
-            message=f"executor_id was {executor_trigger_message.executor_id}"
-    )
-    send(driver_trigger_q, [DriverTriggerMessage.encode(retrun_driver_trigger_message)])
+    if driver_trigger_status == DriverTriggerStatusType.CONTINUE:
+        retrun_driver_trigger_message = DriverTriggerMessage(
+                status=DriverTriggerStatusType.CONTINUE,
+                message=f"executor_id was {executor_trigger_message.executor_id}",
+                executor_id=executor_trigger_message.executor_id
+        )
+    elif driver_trigger_status == DriverTriggerStatusType.FINISH:
+        retrun_driver_trigger_message = DriverTriggerMessage(
+                status=DriverTriggerStatusType.FINISH,
+                message=f"executor_id was {executor_trigger_message.executor_id}",
+                executor_id=executor_trigger_message.executor_id
+        )
+    else:
+        raise ActorExecutorException("illegal driger status type")
+    
+    send_driver_trigger_message(queue=driver_trigger_q, message_body=retrun_driver_trigger_message.encode(), executor_id=executor_trigger_message.executor_id, executor_key=actor_conf.executor_key)
+
+    

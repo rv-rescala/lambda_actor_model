@@ -2,6 +2,7 @@
     "driver_trigger_q": "driver_tigger_q.fifo",
     "executor_trigger_q": "executor_trigger_q.fifo",
     "executor_task_q":  "executor_task_q.fifo",
+    "executor_key":  "sample",
     "executor_concurrency":  10,
     "max_retry":  3,
     "max_lambda_execution_time":  600,

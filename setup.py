@@ -16,14 +16,14 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     
 setup(
     name='lambda_actor',
-    version='0.2',
+    version='0.3.0',
     description='Actor model for aws lambda',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='rv',
     author_email='yo-maruya@rescala.jp',
     keywords='lambda actor model',
-    install_requires=[],
+    install_requires=['dataclasses_json'],
     url='https://www.rescala.jp',
     license='MIT',
     packages=find_packages(exclude=('tests')),

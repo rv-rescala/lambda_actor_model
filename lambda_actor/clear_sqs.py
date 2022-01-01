@@ -9,11 +9,11 @@ from lambda_actor.types.type_actor_message import *
 
 logger = logging.getLogger()
 
-def clear_all_q(bucket: str, prefix: str, filename: str):
+def clear_all_q(bucket: str, prefix: str, conf_filename: str):
     """
     """
     s3_client = boto3.client('s3')
-    actor_conf = ActorConf.get_actor_conf(s3_client=s3_client, bucket=bucket, prefix=prefix, filename=filename)
+    actor_conf = ActorConf.get_actor_conf(s3_client=s3_client, bucket=bucket, prefix=prefix, conf_filename=conf_filename)
 
     trigger_input_path = f"{actor_conf.trigger_file_prefix}/{actor_conf.trigger_file}"
     tmp_trigger_input_path = f"/tmp/{actor_conf.trigger_file}"
