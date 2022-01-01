@@ -85,6 +85,7 @@ def actor_driver(bucket: str, prefix: str, conf_filename: str, finally_func=None
         driver_trigger_message = DriverTriggerMessage.decode(driver_trigger_message_str)
         if driver_trigger_message.status == DriverTriggerStatusType.CONTINUE:
             print(f"contine: {driver_trigger_message}")
+            executor_start(executor_id=driver_trigger_message.executor_id, executor_key=actor_conf.executor_key, executor_trigger_q=executor_trigger_q, driver_trigger_message=driver_trigger_message)
         elif driver_trigger_message.status == DriverTriggerStatusType.FINISH:
             print(f"actor_driver: DriverStatusType.FINISH, executor_id is {driver_trigger_message}")
             if finally_func:
