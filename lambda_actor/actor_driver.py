@@ -49,6 +49,7 @@ def executor_init_start(executor_concurrency: int, executor_key: str, executor_t
     logger.info(f"executor_concurrency: {executor_concurrency}")
     for executor_id in range(executor_concurrency):
         executor_start(executor_id=executor_id, executor_key=executor_key, executor_trigger_q=executor_trigger_q)
+        time.sleep(1)
 
 def executor_start(executor_id: int, executor_key: str, executor_trigger_q,  driver_trigger_message: DriverTriggerMessage = None):
     logger.info(f"executor_start")
@@ -83,7 +84,7 @@ def actor_driver(bucket: str, prefix: str, conf_filename: str, finally_func=None
         executor_init_start(executor_concurrency=actor_conf.executor_concurrency, executor_key=actor_conf.executor_key, executor_trigger_q=executor_trigger_q)
     else:
         driver_trigger_message = DriverTriggerMessage.decode(driver_trigger_message_str)
-        if driver_trigger_message.status == DriverTriggerStatusType.CONTINUE:
+        if (driver_trigger_message.status == DriverTriggerStatusType.CONTINUE) or (not is_q_empty(qname=actor_conf.executor_task_q)):
             print(f"contine: {driver_trigger_message}")
             executor_start(executor_id=driver_trigger_message.executor_id, executor_key=actor_conf.executor_key, executor_trigger_q=executor_trigger_q, driver_trigger_message=driver_trigger_message)
         elif driver_trigger_message.status == DriverTriggerStatusType.FINISH:

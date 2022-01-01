@@ -3,6 +3,7 @@ from enum import Enum
 from lambda_actor.utils.dateutil import timestamp
 from typing import List
 from dataclasses_json import dataclass_json
+import boto3
 
 class DriverTriggerStatusType(Enum):
     CONTINUE = "continue"

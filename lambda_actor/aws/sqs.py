@@ -1,4 +1,5 @@
 from typing import List
+import boto3
 
 def send(queue, msg_list):
     size = 10
@@ -51,5 +52,17 @@ def receive_all(queue) -> List[str]:
             break
     return message_body
 
+def get_q_current_size(qname: str):
+    # ApproximateNumberOfMessages ApproximateNumberOfMessagesNotVisible ApproximateNumberOfMessagesDelayed
+    m = boto3.client('sqs', region_name='ap-northeast-1').get_queue_attributes(QueueUrl=qname, AttributeNames=["ApproximateNumberOfMessages", "ApproximateNumberOfMessagesNotVisible", "ApproximateNumberOfMessagesDelayed"])
+    message_count = m['Attributes']['ApproximateNumberOfMessages']
+    return message_count
+
+def is_q_empty(qname: str) -> bool:
+    q_size = int(get_q_current_size(qname=qname))
+    if q_size != 0:
+        return True
+    else:
+        return False
 
 
