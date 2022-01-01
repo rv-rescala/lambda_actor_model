@@ -17,8 +17,7 @@ class DriverTriggerMessage:
     status: DriverTriggerStatusType
     message: str
     executor_id: str
-    driver_trigger_timestamp: str = timestamp()
-    timestamp: str = datetime.now().strftime('%Y%m%d%H%M%S')
+    driver_trigger_timestamp: str
 
     @classmethod
     def decode(cls, message_str: str):
@@ -53,8 +52,7 @@ class ExecutorTriggerMessage:
     message: str
     driver_trigger_timestamp: str
     executor_id: int
-    executor_trigger_timestamp: str = timestamp()
-    timestamp: str = datetime.now().strftime('%Y%m%d%H%M%S')
+    executor_trigger_timestamp: str
 
     @classmethod
     def decode(cls, message_str: str):
@@ -83,9 +81,8 @@ class ExecutorTaskMessage:
     """[summary]
     """
     message: str
-    retry_count: int = 0
-    driver_start_timestamp: str = timestamp()
-    timestamp: str = datetime.now().strftime('%Y%m%d%H%M%S')
+    retry_count: int
+    driver_start_timestamp: str
     
     @classmethod
     def decode_list(cls, message_list: List[str]):
@@ -132,7 +129,7 @@ class ExecutorTaskMessage:
             Returns:
                 str: [description]
             """
-            return list(map(lambda m: ExecutorTaskMessage(message=m), executor_message_list))
+            return list(map(lambda m: ExecutorTaskMessage(message=m, retry_count=0, driver_start_timestamp=timestamp()), executor_message_list))
 
 
 class ExecutorResultStatusType(Enum):
@@ -150,4 +147,4 @@ class ExecutorResultMessage:
     retry_count: int
     executor_id: int
     execute_time: str
-    timestamp: str = datetime.now().strftime('%Y%m%d%H%M%S')
+    timestamp: str

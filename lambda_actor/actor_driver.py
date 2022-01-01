@@ -54,9 +54,9 @@ def executor_start(executor_id: int, executor_key: str, executor_trigger_q,  dri
     logger.info(f"executor_start")
     logger.info(f"executor_id: {executor_id}")
     if driver_trigger_message:
-        m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.START, message=f"executor {executor_id} start", driver_trigger_timestamp=driver_trigger_message.driver_trigger_timestamp, executor_id=executor_id)
+        m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.START, message=f"executor {executor_id} start", driver_trigger_timestamp=driver_trigger_message.driver_trigger_timestamp, executor_id=executor_id, executor_trigger_timestamp=timestamp())
     else:
-        m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.INIT_START, message=f"executor {executor_id} start", driver_trigger_timestamp=timestamp(), executor_id=executor_id)
+        m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.INIT_START, message=f"executor {executor_id} start", driver_trigger_timestamp=timestamp(), executor_id=executor_id, executor_trigger_timestamp=timestamp())
     print(m)
     send_execute_message(queue=executor_trigger_q, message_body=m.encode(), executor_id=executor_id, executor_key=executor_key)
     time.sleep(1) # Wait

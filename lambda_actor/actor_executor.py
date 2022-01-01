@@ -8,6 +8,7 @@ from lambda_actor.types.type_conf import ActorConf
 from lambda_actor.types.type_actor_message import *
 from typing import List
 import time
+from lambda_actor.utils.dateutil import timestamp
 
 logger = logging.getLogger()
 
@@ -100,7 +101,8 @@ def actor_executor(bucket: str, prefix: str, conf_filename: str, execution_func,
                 executor_start_timestamp = executor_trigger_message.executor_trigger_timestamp,
                 retry_count = executor_task_message.retry_count,
                 executor_id = executor_trigger_message.executor_id,
-                execute_time = task_time
+                execute_time = task_time,
+                timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
             )
             executor_result_list.append(executor_result)
         if executed_time > timeout:
@@ -118,13 +120,15 @@ def actor_executor(bucket: str, prefix: str, conf_filename: str, execution_func,
         retrun_driver_trigger_message = DriverTriggerMessage(
                 status=DriverTriggerStatusType.CONTINUE,
                 message=f"executor_id was {executor_trigger_message.executor_id}",
-                executor_id=executor_trigger_message.executor_id
+                executor_id=executor_trigger_message.executor_id,
+                driver_trigger_timestamp = timestamp()
         )
     elif driver_trigger_status == DriverTriggerStatusType.FINISH:
         retrun_driver_trigger_message = DriverTriggerMessage(
                 status=DriverTriggerStatusType.FINISH,
                 message=f"executor_id was {executor_trigger_message.executor_id}",
-                executor_id=executor_trigger_message.executor_id
+                executor_id=executor_trigger_message.executor_id,
+                driver_trigger_timestamp = timestamp()
         )
     else:
         raise ActorExecutorException("illegal driger status type")

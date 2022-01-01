@@ -6,7 +6,7 @@ from lambda_actor.clear_sqs import clear_all_q
 
 def execution_func(message: str) -> str:
     #raise Exception("test")
-    time.sleep(10)
+    #time.sleep(1)
     #print(message)
     return f"hello: {message}"
 
