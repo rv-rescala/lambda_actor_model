@@ -3,7 +3,7 @@ from enum import Enum
 from lambda_actor.utils.dateutil import timestamp
 from typing import List
 from dataclasses_json import dataclass_json
-import boto3
+from datetime import datetime
 
 class DriverTriggerStatusType(Enum):
     CONTINUE = "continue"
@@ -147,3 +147,4 @@ class ExecutorResultMessage:
     retry_count: int
     executor_id: int
     execute_time: str
+    timestamp: str = datetime.now().strftime('%Y%m%d%H%M%S')
