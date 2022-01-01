@@ -49,7 +49,6 @@ def executor_init_start(executor_concurrency: int, executor_key: str, executor_t
     logger.info(f"executor_concurrency: {executor_concurrency}")
     for executor_id in range(executor_concurrency):
         executor_start(executor_id=executor_id, executor_key=executor_key, executor_trigger_q=executor_trigger_q)
-        time.sleep(1)
 
 def executor_start(executor_id: int, executor_key: str, executor_trigger_q,  driver_trigger_message: DriverTriggerMessage = None):
     logger.info(f"executor_start")
@@ -58,7 +57,9 @@ def executor_start(executor_id: int, executor_key: str, executor_trigger_q,  dri
         m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.START, message=f"executor {executor_id} start", driver_trigger_timestamp=driver_trigger_message.driver_trigger_timestamp, executor_id=executor_id)
     else:
         m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.INIT_START, message=f"executor {executor_id} start", driver_trigger_timestamp=timestamp(), executor_id=executor_id)
+    print(m)
     send_execute_message(queue=executor_trigger_q, message_body=m.encode(), executor_id=executor_id, executor_key=executor_key)
+    time.sleep(1) # Wait
 
 def actor_driver(bucket: str, prefix: str, conf_filename: str, finally_func=None, driver_trigger_message_str: str = None):
     """[summary]
