@@ -18,6 +18,7 @@ class DriverTriggerMessage:
     message: str
     executor_id: str
     driver_trigger_timestamp: str = timestamp()
+    timestamp: str = datetime.now().strftime('%Y%m%d%H%M%S')
 
     @classmethod
     def decode(cls, message_str: str):
@@ -53,6 +54,7 @@ class ExecutorTriggerMessage:
     driver_trigger_timestamp: str
     executor_id: int
     executor_trigger_timestamp: str = timestamp()
+    timestamp: str = datetime.now().strftime('%Y%m%d%H%M%S')
 
     @classmethod
     def decode(cls, message_str: str):
@@ -83,6 +85,7 @@ class ExecutorTaskMessage:
     message: str
     retry_count: int = 0
     driver_start_timestamp: str = timestamp()
+    timestamp: str = datetime.now().strftime('%Y%m%d%H%M%S')
     
     @classmethod
     def decode_list(cls, message_list: List[str]):
