@@ -87,7 +87,7 @@ def actor_executor(bucket: str, prefix: str, conf_filename: str, execution_func,
                 )
                 retry_message = ExecutorTaskMessage.encode(retry_executor_task_message)
                 send_executor_task_message(executor_task_q, [retry_message], executor_key=actor_conf.executor_key)
-                logger.error(f"actor_executor is retried, {retry_executor_task_message}, {e}, {traceback.format_exc()}")
+                logger.error(f'actor_executor is retried, {retry_executor_task_message}, {e}, {traceback.format_exc().replace("\n", "")}')
 
         # timer
         task_end = time.time()

@@ -16,7 +16,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     
 setup(
     name='lambda_actor',
-    version='0.4.7',
+    version='0.4.9',
     description='Actor model for aws lambda',
     long_description=long_description,
     long_description_content_type='text/markdown',
