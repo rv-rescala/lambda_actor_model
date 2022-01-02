@@ -9,6 +9,7 @@ from lambda_actor.types.type_actor_message import *
 from typing import List
 import time
 from lambda_actor.utils.dateutil import timestamp
+import traceback
 
 logger = logging.getLogger()
 
@@ -78,7 +79,6 @@ def actor_executor(bucket: str, prefix: str, conf_filename: str, execution_func,
                 result = str(e)
                 executor_result_status = ExecutorResultStatusType.FAILED
             else:
-                logger.error(f"actor_executor is retried, {e}")
                 executor_result_status = ExecutorResultStatusType.FAILED
                 retry_executor_task_message = ExecutorTaskMessage(
                     message=executor_task_message.message,
@@ -87,7 +87,8 @@ def actor_executor(bucket: str, prefix: str, conf_filename: str, execution_func,
                 )
                 retry_message = ExecutorTaskMessage.encode(retry_executor_task_message)
                 send_executor_task_message(executor_task_q, [retry_message], executor_key=actor_conf.executor_key)
-                logger.error(f"actor_executor is retried, {retry_executor_task_message}")
+                logger.error(f"actor_executor is retried, {retry_executor_task_message}, {e}, {traceback.format_exc()}")
+
         # timer
         task_end = time.time()
         executed_time = task_end - executor_start
