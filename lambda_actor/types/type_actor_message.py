@@ -141,7 +141,7 @@ class ExecutorResultMessage:
     """[summary]
     """
     status: ExecutorResultStatusType
-    result: str
+    result
     driver_start_timestamp: str
     executor_start_timestamp: str
     retry_count: int
