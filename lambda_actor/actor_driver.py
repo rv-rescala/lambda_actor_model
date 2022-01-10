@@ -41,7 +41,7 @@ def actor_starter(bucket: str, prefix: str, actor_conf: str, trigger_name:str) -
             executor_message_list = f.read().split('\n')
             logger.info(f"executor_message_list: {executor_message_list}")
             # add executor task message
-            executor_task_message_list = ExecutorTaskMessage.create_message(executor_message_list)
+            executor_task_message_list = ExecutorTaskMessage.create_message(executor_message_list, trigger_name)
             logger.info(f"executor_task_message_list: {executor_task_message_list}")
             msg_list = send_executor_task_message(queue=executor_task_q, message_body_list=ExecutorTaskMessage.encode_list(executor_task_message_list), task_groupid=trigger_name)
     return msg_list

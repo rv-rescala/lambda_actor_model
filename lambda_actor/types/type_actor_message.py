@@ -82,6 +82,7 @@ class ExecutorTaskMessage:
     """
     message: str
     retry_count: int
+    task_groupid: str
     driver_start_timestamp: str
     
     @classmethod
@@ -123,13 +124,13 @@ class ExecutorTaskMessage:
             return list(map(lambda m: m.encode(), executor_task_message_list))
 
     @classmethod
-    def create_message(cls, executor_message_list) -> str:
+    def create_message(cls, executor_message_list, task_groupid) -> str:
             """[summary]
 
             Returns:
                 str: [description]
             """
-            return list(map(lambda m: ExecutorTaskMessage(message=m, retry_count=0, driver_start_timestamp=timestamp()), executor_message_list))
+            return list(map(lambda m: ExecutorTaskMessage(message=m, retry_count=0, task_groupid=task_groupid, driver_start_timestamp=timestamp()), executor_message_list))
 
 
 class ExecutorResultStatusType(Enum):

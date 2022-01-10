@@ -84,6 +84,7 @@ def actor_executor(bucket: str, prefix: str, actor_conf_file: str, execution_fun
                 retry_executor_task_message = ExecutorTaskMessage(
                     message=executor_task_message.message,
                     retry_count=retry_count,
+                    task_groupid=executor_task_message.task_groupid,
                     driver_start_timestamp=executor_task_message.driver_start_timestamp
                 )
                 retry_message = ExecutorTaskMessage.encode(retry_executor_task_message)
