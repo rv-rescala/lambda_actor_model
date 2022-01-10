@@ -32,7 +32,7 @@ driver_trigger_message_str = """{
 clear_all_q("captool", "conf", "actor_conf.json")
 actor_driver_starter(bucket="captool", prefix="conf", actor_conf_file="actor_conf.json", trigger_name="unext_comiklist")
 
-for i in range(3):
+for i in range(4):
     actor_executor(bucket="captool", prefix="conf", actor_conf_file="actor_conf.json", execution_func=execution_func, success_func=success_func, failed_func=failed_func)
     actor_driver(bucket="captool", prefix="conf", actor_conf_file="actor_conf.json", driver_trigger_message_str=driver_trigger_message_str)
 
