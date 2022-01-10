@@ -53,6 +53,7 @@ class ExecutorTriggerMessage:
     message: str
     trigger_groupid: str
     task_groupid: str
+    executor_start_timestamp: str
 
     @classmethod
     def decode(cls, message_str: str):

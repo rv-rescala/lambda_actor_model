@@ -16,7 +16,7 @@ class ActorDriverException(Exception):
     pass
 
 
-def actor_starter(bucket: str, prefix: str, actor_conf: str) -> str:
+def actor_starter(bucket: str, prefix: str, actor_conf: str, trigger_name:str) -> str:
     """[Send task message]
 
     Args:
@@ -26,8 +26,9 @@ def actor_starter(bucket: str, prefix: str, actor_conf: str) -> str:
     """
     # init
     s3_client = boto3.client('s3')
-    trigger_input_path = f"{actor_conf.trigger_file_prefix}/{actor_conf.trigger_file}"
-    tmp_trigger_input_path = f"/tmp/{actor_conf.trigger_file}"
+    trigger_file = f"{trigger_name}.csv"
+    trigger_input_path = f"{actor_conf.trigger_file_prefix}/{trigger_file}"
+    tmp_trigger_input_path = f"/tmp/{trigger_file}"
 
     # sqs init
     sqs = boto3.resource('sqs', region_name='ap-northeast-1')
@@ -42,30 +43,26 @@ def actor_starter(bucket: str, prefix: str, actor_conf: str) -> str:
             # add executor task message
             executor_task_message_list = ExecutorTaskMessage.create_message(executor_message_list)
             logger.info(f"executor_task_message_list: {executor_task_message_list}")
-            msg_list = send_executor_task_message(queue=executor_task_q, message_body_list=ExecutorTaskMessage.encode_list(executor_task_message_list), task_groupid=actor_conf.trigger_name)
+            msg_list = send_executor_task_message(queue=executor_task_q, message_body_list=ExecutorTaskMessage.encode_list(executor_task_message_list), task_groupid=trigger_name)
     return msg_list
 
-def executor_init_start(actor_conf: ActorConf, executor_trigger_q):
+def executor_init_start(actor_conf: ActorConf, executor_trigger_q, trigger_name:str):
     logger.info(f"executor_init_start")
     logger.info(f"executor_concurrency: {actor_conf.executor_concurrency}")
     for executor_id in range(actor_conf.executor_concurrency):
-        task_groupid = actor_conf.trigger_name
+        task_groupid = trigger_name
         trigger_groupid = f"{task_groupid}_{executor_id}"
-        m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.INIT_START, message=f"executor {executor_id} start", task_groupid=task_groupid, trigger_groupid=trigger_groupid)
+        m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.INIT_START, message=f"executor {executor_id} start", task_groupid=task_groupid, trigger_groupid=trigger_groupid, executor_start_timestamp=timestamp())
         send_execute_trigger_message(queue=executor_trigger_q, message_body=m.encode(), trigger_groupid=trigger_groupid)
+        time.sleep(0.5) # Wait
 
-def executor_start(executor_id: int, executor_key: str, executor_trigger_q, driver_trigger_message: DriverTriggerMessage = None):
+def executor_start(executor_trigger_q, driver_trigger_message: DriverTriggerMessage = None):
     logger.info(f"executor_start")
-    logger.info(f"executor_id: {executor_id}")
-    if driver_trigger_message:
-        m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.START, message=f"executor {executor_id} start", driver_trigger_timestamp=driver_trigger_message.driver_trigger_timestamp, executor_id=executor_id, executor_trigger_timestamp=timestamp())
-    else:
-        m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.INIT_START, message=f"executor {executor_id} start", driver_trigger_timestamp=timestamp(), executor_id=executor_id, executor_trigger_timestamp=timestamp())
-    print(m)
-    send_execute_trigger_message(queue=executor_trigger_q, message_body=m.encode(), executor_id=executor_id, executor_key=executor_key)
-    time.sleep(1) # Wait
+    logger.info(f"trigger_groupid: {driver_trigger_message.trigger_groupid}")
+    m = ExecutorTriggerMessage(status=ExecutorTriggerStatusType.INIT_START, message=f"trigger_groupid {driver_trigger_message.trigger_groupid} start", task_groupid=driver_trigger_message.task_groupid, trigger_groupid=driver_trigger_message.trigger_groupid, executor_start_timestamp=timestamp())
+    send_execute_trigger_message(queue=executor_trigger_q, message_body=m.encode(), trigger_groupid=driver_trigger_message.trigger_groupid)
 
-def actor_driver(bucket: str, prefix: str, actor_conf_file: str, trigger_name: str, driver_trigger_message_str: str = None):
+def actor_driver_starter(bucket: str, prefix: str, actor_conf_file: str, trigger_name: str, driver_trigger_message_str: str = None):
     """[summary]
 
     Args:
@@ -75,7 +72,7 @@ def actor_driver(bucket: str, prefix: str, actor_conf_file: str, trigger_name: s
     """
     # init
     s3_client = boto3.client('s3')
-    actor_conf = ActorConf.get_actor_conf(s3_client=s3_client, bucket=bucket, prefix=prefix, actor_conf_file=actor_conf_file, trigger_name=trigger_name)
+    actor_conf = ActorConf.get_actor_conf(s3_client=s3_client, bucket=bucket, prefix=prefix, actor_conf_file=actor_conf_file)
     logger.info(f"actor_driver: actor driver start, {actor_conf}")
 
     # sqs init
@@ -84,24 +81,37 @@ def actor_driver(bucket: str, prefix: str, actor_conf_file: str, trigger_name: s
     executor_trigger_q = sqs.get_queue_by_name(QueueName=actor_conf.executor_trigger_q)
     executor_task_q = sqs.get_queue_by_name(QueueName=actor_conf.executor_task_q)
 
-    if driver_trigger_message_str is None:     # Init run
-        actor_starter(bucket=bucket, prefix=prefix, actor_conf=actor_conf)
-        executor_init_start(actor_conf=actor_conf, executor_trigger_q=executor_trigger_q)
+    actor_starter(bucket=bucket, prefix=prefix, actor_conf=actor_conf, trigger_name=trigger_name)
+    executor_init_start(actor_conf=actor_conf, executor_trigger_q=executor_trigger_q, trigger_name=trigger_name)
+
+
+def actor_driver(bucket: str, prefix: str, actor_conf_file: str, driver_trigger_message_str: str):
+    """[summary]
+
+    Args:
+        bucket (str): [description]
+        prefix (str): [description]
+        conf_filename (str): [description]
+    """
+    # init
+    s3_client = boto3.client('s3')
+    actor_conf = ActorConf.get_actor_conf(s3_client=s3_client, bucket=bucket, prefix=prefix, actor_conf_file=actor_conf_file)
+    logger.info(f"actor_driver: actor driver start, {actor_conf}")
+
+    # sqs init
+    sqs = boto3.resource('sqs', region_name='ap-northeast-1')
+    driver_trigger_q = sqs.get_queue_by_name(QueueName=actor_conf.driver_trigger_q)
+    executor_trigger_q = sqs.get_queue_by_name(QueueName=actor_conf.executor_trigger_q)
+    executor_task_q = sqs.get_queue_by_name(QueueName=actor_conf.executor_task_q)
+
+    driver_trigger_message = DriverTriggerMessage.decode(driver_trigger_message_str)
+    task_q_size = get_q_current_size(qname=actor_conf.executor_task_q)
+    print(f"task q count: {task_q_size}")
+    if (driver_trigger_message.status == DriverTriggerStatusType.CONTINUE) or (task_q_size > 0):
+        print(f"contine: {driver_trigger_message}")
+        executor_start(executor_trigger_q=executor_trigger_q, driver_trigger_message=driver_trigger_message)
+    elif driver_trigger_message.status == DriverTriggerStatusType.FINISH:
+        print(f"actor_driver finish: {driver_trigger_message}")
     else:
-        driver_trigger_message = DriverTriggerMessage.decode(driver_trigger_message_str)
-        task_q_size = get_q_current_size(qname=actor_conf.executor_task_q)
-        print(f"task q count: {task_q_size}")
-        print(task_q_size > 0)
-        if (driver_trigger_message.status == DriverTriggerStatusType.CONTINUE) or (task_q_size > 0):
-            print(f"contine: {driver_trigger_message}")
-            executor_start(executor_id=driver_trigger_message.executor_id, executor_key=actor_conf.executor_key, executor_trigger_q=executor_trigger_q, driver_trigger_message=driver_trigger_message)
-        elif driver_trigger_message.status == DriverTriggerStatusType.FINISH:
-            print(f"actor_driver: DriverStatusType.FINISH, executor_id is {driver_trigger_message}")
-            if finally_func:
-                finally_func()
-        else:
-            raise ActorDriverException(f"driver_status_message.status  is illegal: {driver_status_message.status}")
-    
-
-
+        raise ActorDriverException(f"driver_status_message.status  is illegal: {driver_status_message.status}")
     

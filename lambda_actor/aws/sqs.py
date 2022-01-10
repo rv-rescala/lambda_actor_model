@@ -17,8 +17,9 @@ def send_executor_task_message(queue, message_body_list: List[str], task_groupid
     send(queue=queue, msg_list=msg_list)
     return msg_list
 
-def send_driver_trigger_message(queue, message_body: str, executor_id: int, executor_key: str):
-    message_group_id = f"group_{executor_key}_{str(executor_id)}"
+def send_driver_trigger_message(queue, message_body: str, trigger_groupid: str):
+    # TBD: trigger_groupidかtask_groupidか、どちらをmessage_group_idとするか
+    message_group_id = trigger_groupid
     msg_list = [{'Id': "0", 'MessageBody': message_body, 'MessageGroupId': message_group_id}]
     send(queue=queue, msg_list=msg_list)
 

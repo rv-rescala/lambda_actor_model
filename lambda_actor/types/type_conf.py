@@ -10,15 +10,13 @@ class ActorConf:
     executor_trigger_q: str
     executor_task_q: str
     executor_concurrency: int
-    trigger_name: str
     max_retry: int
     max_lambda_execution_time: int
     trigger_file_bucket: str
     trigger_file_prefix: str
-    trigger_file: str
 
     @classmethod
-    def get_actor_conf(cls, s3_client, bucket: str, prefix: str, actor_conf_file: str, trigger_name: str):
+    def get_actor_conf(cls, s3_client, bucket: str, prefix: str, actor_conf_file: str):
         """[summary]
 
         Args:
@@ -39,12 +37,10 @@ class ActorConf:
                 executor_trigger_q=actor_conf_json["executor_trigger_q"],
                 executor_task_q=actor_conf_json["executor_task_q"],
                 executor_concurrency=actor_conf_json["executor_concurrency"],
-                trigger_name=trigger_name,
                 max_retry=actor_conf_json["max_retry"],
                 max_lambda_execution_time=actor_conf_json["max_lambda_execution_time"],
                 trigger_file_bucket=actor_conf_json["trigger_file_bucket"],
-                trigger_file_prefix=actor_conf_json["trigger_file_prefix"],
-                trigger_file=trigger_name + ".csv"
+                trigger_file_prefix=actor_conf_json["trigger_file_prefix"]
                 )
         return actor_conf
 

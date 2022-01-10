@@ -5,7 +5,7 @@
     "executor_key":  "sample",
     "executor_concurrency":  10,
     "max_retry":  3,
-    "max_lambda_execution_time":  600,
-    "trigger_file_bucket": "rescala-input",
-    "trigger_file_prefix": "mangawalk/target_url"
+    "max_lambda_execution_time":  60,
+    "trigger_file_bucket": "captool",
+    "trigger_file_prefix": "input"
 }
