@@ -16,8 +16,9 @@ class DriverTriggerMessage:
     """
     status: DriverTriggerStatusType
     message: str
-    executor_id: str
-    driver_trigger_timestamp: str
+    trigger_groupid: str
+    task_groupid: str
+    driver_start_timestamp: str
 
     @classmethod
     def decode(cls, message_str: str):
@@ -50,9 +51,8 @@ class ExecutorTriggerMessage:
     """
     status: ExecutorTriggerStatusType
     message: str
-    driver_trigger_timestamp: str
-    executor_id: int
-    executor_trigger_timestamp: str
+    trigger_groupid: str
+    task_groupid: str
 
     @classmethod
     def decode(cls, message_str: str):
@@ -73,8 +73,7 @@ class ExecutorTriggerMessage:
             str: [description]
         """
         return self.to_json(indent=4, ensure_ascii=False)
-        #return f"{self.status.value},{self.message},{self.driver_trigger_timestamp},{self.executor_id},{self.executor_trigger_timestamp}"
-
+        
 @dataclass_json
 @dataclass
 class ExecutorTaskMessage:
@@ -141,10 +140,11 @@ class ExecutorResultMessage:
     """[summary]
     """
     status: ExecutorResultStatusType
-    result
+    result: str
     driver_start_timestamp: str
     executor_start_timestamp: str
     retry_count: int
-    executor_id: int
+    trigger_groupid: str
+    task_groupid: str
     execute_time: str
     timestamp: str

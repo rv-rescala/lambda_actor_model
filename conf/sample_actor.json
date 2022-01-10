@@ -7,6 +7,5 @@
     "max_retry":  3,
     "max_lambda_execution_time":  600,
     "trigger_file_bucket": "rescala-input",
-    "trigger_file_prefix": "mangawalk/target_url",
-    "trigger_file": "manga_target.csv"
+    "trigger_file_prefix": "mangawalk/target_url"
 }

@@ -6,16 +6,16 @@ def send(queue, msg_list):
     for start in range(0, len(msg_list), size):
         queue.send_messages(Entries=msg_list[start: start + size])
 
-def send_execute_message(queue, message_body: str, executor_id: int, executor_key: str):
-    message_group_id = f"group_{executor_key}_{str(executor_id)}"
-    msg_list = [{'Id': "0", 'MessageBody': message_body, 'MessageGroupId': message_group_id}]
+def send_execute_trigger_message(queue, message_body: str, trigger_groupid: str):
+    msg_list = [{'Id': "0", 'MessageBody': message_body, 'MessageGroupId': trigger_groupid}]
     send(queue=queue, msg_list=msg_list)
+    return msg_list
 
-def send_executor_task_message(queue, message_body_list: List[str], executor_key: str):
+def send_executor_task_message(queue, message_body_list: List[str], task_groupid: str) -> str:
     msg_num = len(message_body_list)
-    message_group_id = f"group_{executor_key}"
-    msg_list = [{'Id': '{}'.format(i+1), 'MessageBody': message_body_list[i], 'MessageGroupId': message_group_id} for i in range(msg_num)]
+    msg_list = [{'Id': '{}'.format(i+1), 'MessageBody': message_body_list[i], 'MessageGroupId': task_groupid} for i in range(msg_num)]
     send(queue=queue, msg_list=msg_list)
+    return msg_list
 
 def send_driver_trigger_message(queue, message_body: str, executor_id: int, executor_key: str):
     message_group_id = f"group_{executor_key}_{str(executor_id)}"
