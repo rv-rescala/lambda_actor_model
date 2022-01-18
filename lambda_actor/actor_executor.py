@@ -69,7 +69,7 @@ def actor_executor(bucket: str, prefix: str, actor_conf_file: str, execution_fun
         executor_result_status = None
         result = None
         try:
-            result = execution_func(executor_task_message.message)
+            result = execution_func(executor_task_message)
             executor_result_status = ExecutorResultStatusType.SUCCESS
         except Exception as e:
             # when the task failed, retry
