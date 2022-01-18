@@ -81,7 +81,6 @@ class ExecutorTaskMessage:
     """[summary]
     """
     message: str
-    trigger_groupid: str
     retry_count: int
     task_groupid: str
     driver_start_timestamp: str
